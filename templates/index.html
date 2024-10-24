@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Scraper Dashboard</title>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/5.3.0/css/bootstrap.min.css" rel="stylesheet">
+
+    <style>
+        body {
+            background-color: #f7f9fc;
+            font-family: 'Arial', sans-serif;
+            color: #333;
+        }
+
+        /* Global layout styling */
+        .wrapper {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        /* Sidebar styling */
+        .sidebar {
+            width: 250px;
+            background-color: #2b3e50;
+            height: 100vh;
+            padding-top: 20px;
+            color: white;
+        }
+
+        .sidebar h4 {
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 2rem;
+        }
+
+        .sidebar ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        .sidebar ul li {
+            padding: 15px 20px;
+            cursor: pointer;
+            font-size: 1.1rem;
+        }
+
+        .sidebar ul li:hover, .sidebar ul li.active {
+            background-color: #1a2734;
+        }
+
+        .sidebar ul li button {
+            background-color: transparent;
+            border: none;
+            color: white;
+            width: 100%;
+            text-align: left;
+        }
+
+        /* Main content styling */
+        .content {
+            padding: 30px;
+            flex-grow: 1;
+        }
+
+        h3 {
+            margin-bottom: 20px;
+            color: #2b3e50;
+            text-align: center;
+            font-weight: bold;
+            font-size: 2.5rem;
+        }
+
+        .form-container {
+            max-width: 600px;
+            margin: 0 auto;
+        }
+
+        .form-group label {
+            font-size: 1.2rem;
+        }
+
+        .form-group select {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.1rem;
+            margin-top: 10px;
+        }
+
+        .btn-custom {
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+            transition: background-color 0.3s ease;
+            padding: 12px 25px;
+            font-size: 1.2rem;
+        }
+
+        .btn-custom:hover {
+            background-color: #0056b3;
+        }
+
+        /* Pie chart styling */
+        .side-right {
+            width: 250px;
+            background-color: #f1f3f5;
+            padding: 20px;
+        }
+
+        .pie-chart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .pie-chart-box {
+            text-align: center;
+        }
+
+        /* New colorful pie charts */
+        .pie-chart {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            margin: 0 auto;
+            position: relative;
+        }
+
+        .pie-chart span {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.5rem;
+            font-weight: bold;
+            color: white;
+        }
+
+        /* Adding custom colors */
+        .pie-chart:nth-child(1) {
+            background: conic-gradient(#ff6384 0%, #ff6384 65%, #e9ecef 65%);
+        }
+        
+        .pie-chart:nth-child(2) {
+            background: conic-gradient(#36a2eb 0%, #36a2eb 55%, #e9ecef 55%);
+        }
+
+        .pie-chart:nth-child(3) {
+            background: conic-gradient(#ffce56 0%, #ffce56 70%, #e9ecef 70%);
+        }
+
+        .pie-chart:nth-child(4) {
+            background: conic-gradient(#4bc0c0 0%, #4bc0c0 40%, #e9ecef 40%);
+        }
+
+        .pie-chart:nth-child(5) {
+            background: conic-gradient(#9966ff 0%, #9966ff 50%, #e9ecef 50%);
+        }
+
+        /* File input group */
+        .file-input-group {
+            justify-content: center;
+            margin-bottom: 20px;
+        }
+
+        .file-input-group input[type="file"] {
+            width: 100%;
+            padding: 10px;
+            font-size: 1.2rem;
+        }
+
+        /* Footer */
+        footer {
+            text-align: center;
+            padding: 10px;
+            background-color: #343a40;
+            color: white;
+        }
+
+        /* Download buttons under pie charts */
+        .download-btn {
+            margin-top: 10px;
+            background-color: #007bff;
+            border-color: #007bff;
+            color: white;
+            padding: 5px 15px;
+            font-size: 1rem;
+        }
+
+        .download-btn:hover {
+            background-color: #0056b3;
+        }
+    </style>
+</head>
+<body>
+    <div class="wrapper">
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <h4>Dashboard</h4>
+            <ul>
+                <li class="active"><button>Scrapers</button></li>
+                <li><button onclick="startVM()">START VM</button></li>
+                <li><button onclick="stopVM()">STOP VM</button></li>
+                <li><button onclick="changeVM()">Change VM Instance</button></li>
+            </ul>
+        </div>
+
+        <!-- Main Content (Center Form) -->
+        <div class="content">
+            <h3>Shubh's Scraper</h3>
+
+            <!-- Form in the Center -->
+            <div class="form-container">
+                <form action="/upload" method="post" enctype="multipart/form-data">
+                    <!-- Upload File Button -->
+                    <div class="file-input-group d-flex">
+                        <input type="file" class="form-control" id="file" name="file">
+                    </div>
+
+                    <!-- First Scraper selection dropdown -->
+                    <div class="form-group">
+                        <label for="scraper_name">Upload File</label>
+                        <select class="form-control" id="scraper_name" name="scraper_name">
+                            {% for scraper in scrapers %}
+                                <option value="{{ scraper }}">{{ scraper }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Start Scraper Button -->
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-custom" onclick="startScraper()">Start Scraper</button>
+                    </div>
+
+                    <!-- Second Scraper selection dropdown -->
+                    <div class="form-group mt-4">
+                        <label for="scraper_name_2">Select Another Scraper</label>
+                        <select class="form-control" id="scraper_name_2" name="scraper_name_2">
+                            {% for scraper in scrapers %}
+                                <option value="{{ scraper }}">{{ scraper }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+
+                    <!-- Start Scraper Button for the second dropdown -->
+                    <div class="text-center mt-4">
+                        <button type="button" class="btn btn-custom" onclick="startScraper2()">Start Scraper</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- Right Side Pie Charts -->
+        <div class="side-right">
+            <div class="pie-chart-container">
+                <!-- Example Pie Charts with percentage and download button -->
+                {% for i in range(5) %}
+                    <div class="pie-chart-box">
+                        <div class="pie-chart">
+                            <span>{{ 35 }}</span>
+                        </div>
+                        <p>eventbrite_links</p>
+                        <button class="download-btn">Download</button>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        © 2024 Scraper Dashboard - Shubh 
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- VM and Scraper control scripts -->
+    <script>
+        function startVM() {
+            alert('VM Started');
+        }
+
+        function stopVM() {
+            alert('VM Stopped');
+        }
+
+        function changeVM() {
+            alert('VM Instance Changed');
+        }
+
+        function startScraper() {
+            let selectedScraper = document.getElementById('scraper_name').value;
+            alert('Scraper ' + selectedScraper + ' started');
+        }
+
+        function startScraper2() {
+            let selectedScraper2 = document.getElementById('scraper_name_2').value;
+            alert('Scraper ' + selectedScraper2 + ' started');
+        }
+    </script>
+</body>
+</html>
